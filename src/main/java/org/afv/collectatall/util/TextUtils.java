@@ -18,6 +18,19 @@ public class TextUtils {
         }
     }
 
+    private static final Text RARE_HEADER = Text.empty()
+            .append(Text.literal("[")
+                    .formatted(Formatting.BOLD)
+                    .formatted(Formatting.DARK_AQUA))
+            .append(Text.literal("☄")
+                    .formatted(Formatting.AQUA))
+            .append(Text.literal("]")
+                    .formatted(Formatting.BOLD)
+                    .formatted(Formatting.DARK_AQUA))
+            .append(Text.literal(" > ")
+                    .formatted(Formatting.BOLD)
+                    .formatted(Formatting.WHITE));
+
     private static final Text TIMED_HEADER = Text.empty()
             .append(Text.literal("[")
                     .formatted(Formatting.BOLD)
@@ -47,4 +60,5 @@ public class TextUtils {
 
     public static Text getHeaderTimed() { return TIMED_HEADER.copy(); }
     public static Text getHeaderVictory() { return VICTORY_HEADER.copy(); }
+    public static Text getRareHeader() { return RARE_HEADER.copy(); }
 }

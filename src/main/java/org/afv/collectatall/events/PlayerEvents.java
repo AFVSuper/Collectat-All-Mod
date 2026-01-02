@@ -3,9 +3,12 @@ package org.afv.collectatall.events;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.LoreComponent;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.PlaySoundS2CPacket;
 import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
 import net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket;
@@ -22,7 +25,10 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.text.object.PlayerTextObjectContents;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Rarity;
 import org.afv.collectatall.holder.PlayerItemsHolder;
+import org.afv.collectatall.init.ModComponents;
+import org.afv.collectatall.init.ModGamerules;
 import org.afv.collectatall.init.ModNetwork;
 import org.afv.collectatall.network.PlayerGetsItemPayload;
 import org.afv.collectatall.network.PlayerRemainingCountPayload;
@@ -30,6 +36,7 @@ import org.afv.collectatall.network.ResponsePlayerPlayTimePayload;
 import org.afv.collectatall.util.*;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class PlayerEvents {
     private static int tickCounter = 0;
@@ -124,8 +131,11 @@ public class PlayerEvents {
                                         .append(TextUtils.getHeaderTimed())
                                         .append(Text.object(new PlayerTextObjectContents(ProfileComponent.ofDynamic(player.getUuid()), true)))
                                         .append(" ")
+                                        .append(Text.translatable("collectatall.broadcast.initial_sign")
+                                                .formatted(Formatting.YELLOW))
                                         .append(player.getName().copy()
                                                 .withColor(0xffd92e))
+                                        .append(Text.translatable("collectatall.broadcast.apostrophe_space"))
                                         .append(Text.translatable("collectatall.broadcast.timed_timesup_1")
                                                 .formatted(Formatting.YELLOW))
                                         .append(Text.literal(" " + (ItemListUtil.ITEM_NUMBER - holder.getRemainingCount()) + " ")
@@ -141,9 +151,11 @@ public class PlayerEvents {
                         }
                     }
                     for (int i = 0; i < 41; i++) {
-                        Item item = inv.getStack(i).getItem();
+                        ItemStack stack = inv.getStack(i);
+                        Item item = stack.getItem();
                         if (holder.isItemNeeded(item)) {
-                            execObtainItem(player, item, server);
+                            if (stack.contains(ModComponents.ITEM_CHECKED)) continue;
+                            execObtainItem(player, inv.getStack(i), item, server);
                             delay = 5;
                             break;
                         }
@@ -157,13 +169,51 @@ public class PlayerEvents {
         tickCounter++;
     }
 
-    private static void execObtainItem(ServerPlayerEntity player, Item item, MinecraftServer server) {
+    private static void execObtainItem(ServerPlayerEntity player, ItemStack stack, Item item, MinecraftServer server) {
         if (player instanceof PlayerItemsHolder holder) {
             ServerPlayNetworking.send(player, new PlayerGetsItemPayload());
             holder.obtainedItem(item);
+            ObtainMode obtainMode = player.getEntityWorld().getGameRules().getValue(ModGamerules.MODIFY_OBTAINED_GAMERULE);
+            switch (obtainMode) {
+                case ObtainMode.MARK -> markStack(stack, player);
+                case ObtainMode.REMOVE -> stack.setCount(stack.getCount() - 1);
+                case ObtainMode.MIXED -> {
+                    if (stack.getMaxCount() == 1) markStack(stack, player);
+                    else {
+                        Rarity rarity = item.getComponents().get(DataComponentTypes.RARITY);
+                        if (rarity != Rarity.COMMON) markStack(stack, player);
+                        else {
+                            stack.setCount(stack.getCount() - 1);
+                        }
+                    }
+                }
+                default -> {}
+            }
             holder.setPrevItem(item);
             TeamUtils.updateSuffix(player);
             CollectatallModeState state = CollectatallModeState.getServerState(server);
+            if (player.getEntityWorld().getGameRules().getValue(ModGamerules.RARE_BROADCAST_GAMERULE)) {
+                Rarity rarity = item.getComponents().get(DataComponentTypes.RARITY);
+                if (rarity != null && rarity != Rarity.COMMON) {
+                    broadcastChat(server, player, Text.empty()
+                            .append(TextUtils.getRareHeader())
+                            .append(Text.object(new PlayerTextObjectContents(ProfileComponent.ofDynamic(player.getUuid()), true)))
+                            .append(" ")
+                            .append(player.getName().copy()
+                                    .withColor(0xffffff))
+                            .append(" ")
+                            .append(Text.translatable("collectatall.broadcast.rare")
+                                    .formatted(Formatting.WHITE))
+                            .append(Text.literal(": ")
+                                    .formatted(Formatting.WHITE))
+                            .append(ItemToTextObject.getText(item))
+                            .append(" ")
+                            .append(item.getName().copy()
+                                    .formatted(rarity.getFormatting())
+                            )
+                    );
+                }
+            }
             player.sendMessage(Text.empty()
                             .append(ItemToTextObject.getText(item))
                             .append(Text.literal(" "))
@@ -223,6 +273,8 @@ public class PlayerEvents {
                             .append(TextUtils.getHeaderVictory())
                             .append(Text.object(new PlayerTextObjectContents(ProfileComponent.ofDynamic(player.getUuid()), true)))
                             .append(" ")
+                            .append(Text.translatable("collectatall.broadcast.initial_sign")
+                                    .formatted(Formatting.GREEN))
                             .append(player.getName().copy()
                                     .withColor(0x00ff00))
                             .append(" ")
@@ -359,5 +411,26 @@ public class PlayerEvents {
             player.sendMessage(msg);
             if (player != source) sendSound(player, SoundEvents.UI_BUTTON_CLICK, SoundCategory.PLAYERS, player.getX(), player.getY(), player.getZ(), 1f, 1f);
         }
+    }
+
+    public static void markStack(ItemStack stack, ServerPlayerEntity player) {
+        stack.set(ModComponents.ITEM_CHECKED, true);
+        LoreComponent lore = stack.getComponents().get(DataComponentTypes.LORE);
+        Text mark = Text.empty()
+                .append(Text.translatable("collectatall.mark").append(Text.literal(": "))
+                        .formatted(Formatting.RESET)
+                        .withColor(0xffd073))
+                .append(Text.object(new PlayerTextObjectContents(ProfileComponent.ofDynamic(player.getUuid()), true))
+                        .formatted(Formatting.RESET)
+                        .formatted(Formatting.ITALIC)
+                        .formatted(Formatting.WHITE))
+                .append(" ")
+                .append(player.getName().copy()
+                        .formatted(Formatting.RESET)
+                        .formatted(Formatting.WHITE));
+        stack.set(
+                DataComponentTypes.LORE,
+                Objects.requireNonNullElse(lore, LoreComponent.DEFAULT).with(mark)
+        );
     }
 }

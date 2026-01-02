@@ -17,6 +17,8 @@ import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 import org.afv.collectatall.events.PlayerEvents;
 import org.afv.collectatall.init.ModCommands;
+import org.afv.collectatall.init.ModComponents;
+import org.afv.collectatall.init.ModGamerules;
 import org.afv.collectatall.init.ModNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +26,13 @@ import org.slf4j.LoggerFactory;
 public class CollectatAll implements ModInitializer {
     public static final String ModID = "collectatall";
     public static final Logger LOGGER = LoggerFactory.getLogger(ModID);
+    private static final boolean DEBUG = false;
 
     @Override
     public void onInitialize() {
+        ModGamerules.init();
+        ModComponents.init();
+
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             ModCommands.register(dispatcher, registryAccess);
         });
@@ -60,4 +66,6 @@ public class CollectatAll implements ModInitializer {
         // Optional: set display slot
         scoreboard.setObjectiveSlot(ScoreboardDisplaySlot.LIST, objective);
     }
+
+    public static boolean isDebugActive() { return DEBUG; }
 }

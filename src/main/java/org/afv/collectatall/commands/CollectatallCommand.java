@@ -1,14 +1,12 @@
 package org.afv.collectatall.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.Message;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.command.argument.EnumArgumentType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.ProfileComponent;
 import net.minecraft.item.Item;
@@ -20,11 +18,9 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.*;
-import net.minecraft.text.object.AtlasTextObjectContents;
 import net.minecraft.text.object.PlayerTextObjectContents;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Rarity;
-import org.afv.collectatall.CollectatAll;
 import org.afv.collectatall.holder.PlayerItemsHolder;
 import org.afv.collectatall.init.ModNetwork;
 import org.afv.collectatall.util.CollectatallMode;
@@ -33,7 +29,6 @@ import org.afv.collectatall.util.ItemListUtil;
 import org.afv.collectatall.util.ItemToTextObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class CollectatallCommand {
     private static final int MAX_ICONS_PER_ROW = 15;

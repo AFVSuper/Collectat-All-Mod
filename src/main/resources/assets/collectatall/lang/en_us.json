@@ -28,7 +28,7 @@
   "collectatall.game.congrats_sub_timed": "You completed the list in time!",
   "collectatall.game.timed_timesup": "Time's Up!",
   "collectatall.game.timed_sub_1": "You have obtained",
-  "collectatall.game.timed_sub_2": "items!",
+  "collectatall.game.timed_sub_2": "items",
   "collectatall.game.hud.count": "Count",
   "collectatall.game.hud.prev": "Previous",
   "collectatall.check.click_for_more": "Click for more info",
@@ -42,5 +42,10 @@
   "collectatall.broadcast.timed_timesup_2": "items!",
   "collectatall.broadcast.count_1": "has completed the",
   "collectatall.broadcast.count_2": "items in",
-  "scoreboard.collectatall.count": "Item Count"
+  "scoreboard.collectatall.count": "Item Count",
+  "collectatall.broadcast.initial_sign": "",
+  "collectatall.broadcast.apostrophe_space": "",
+  "collectatall.broadcast.rare": "has obtained",
+  "collectatall.component.checked": "Collectat-All Marked",
+  "collectatall.mark": "Marked"
 }

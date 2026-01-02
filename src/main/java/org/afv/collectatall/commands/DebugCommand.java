@@ -24,7 +24,6 @@ import java.util.List;
 public class DebugCommand {
     private static int ind = 0;
     private static final ArrayList<Item> list = ItemListUtil.getAllSurvivalItems();
-    private static final int len = list.size();
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess) {
         dispatcher.register(CommandManager.literal("mod-debug")
