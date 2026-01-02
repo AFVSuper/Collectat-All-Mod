@@ -12,6 +12,8 @@ The mod page is also written in both languages, so choose yours:
   
   ## About
   This mod adds some minigame-like game modes, all based in one thing, collecting items.
+
+  The name is based on **Collectathon**, a video-game genre based on collecting stuff. In this mod, the default mode is to collect **ALL** items. There are also some other modes, listed below.
   
   The current game modes are:
   - **Casual**: The standard mode, just collect all the items at your own pace.
@@ -62,6 +64,8 @@ The mod page is also written in both languages, so choose yours:
   
   ## Sobre el Mod
   Este mod añade algunos modos de juego como "minijuegos", todos basados en recolectar objetos.
+
+  El nombre está basado en **Collectathon**, un género de videojuegos basado en recolectar cosas. En este mod, el modo por defecto es recolectar **TODOS** los objetos. También hay más modos, listados abajo.
   
   Los modos de juego actualmente son:
   - **Casual**: El modo estándar, recolecta todos los objetos a tu ritmo.
